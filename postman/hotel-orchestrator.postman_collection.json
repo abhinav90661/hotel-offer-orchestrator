@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "Hotel Offer Orchestrator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:3000" }],
+  "item": [
+    {
+      "name": "Delhi - overlaps",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/hotels?city=delhi" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+        "const body = pm.response.json();",
+        "pm.test('Response is an array', () => pm.expect(Array.isArray(body)).to.be.true);",
+        "const names = body.map((h) => h.name.trim().toLowerCase());",
+        "pm.test('Names are unique', () => pm.expect(new Set(names).size).to.eql(names.length));",
+        "pm.test('Holtin uses the cheapest offer', () => { const h = body.find((x) => x.name.toLowerCase() === 'holtin'); pm.expect(h.price).to.eql(5340); pm.expect(h.supplier).to.eql('Supplier B'); });",
+        "pm.test('Hotel-only-in-one-supplier is included', () => pm.expect(names).to.include('taj avenue'));"
+      ] } }]
+    },
+    {
+      "name": "Delhi - price range",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/hotels?city=delhi&minPrice=5000&maxPrice=6000" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+        "const body = pm.response.json();",
+        "pm.test('Every result is within the range', () => body.forEach((h) => pm.expect(h.price).to.be.within(5000, 6000)));"
+      ] } }]
+    },
+    {
+      "name": "Unknown city",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/hotels?city=chennai" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+        "pm.test('Response is empty array', () => pm.expect(pm.response.json()).to.eql([]));"
+      ] } }]
+    },
+    {
+      "name": "Missing city",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/hotels" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+      ] } }]
+    },
+    {
+      "name": "Set Supplier A down",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"down\":true}" }, "url": "{{baseUrl}}/api/test/supplier/a/down" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Supplier marked down', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "Call API with Supplier A down",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/hotels?city=delhi" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+        "pm.test('Supplier B data remains available', () => pm.expect(pm.response.json().length).to.be.above(0));"
+      ] } }]
+    },
+    {
+      "name": "Reset Supplier A",
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"down\":false}" }, "url": "{{baseUrl}}/api/test/supplier/a/down" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Supplier reset', () => pm.response.to.have.status(200));"] } }]
+    },
+    { "name": "Supplier A direct", "request": { "method": "GET", "url": "{{baseUrl}}/supplierA/hotels?city=delhi" } },
+    { "name": "Supplier B direct", "request": { "method": "GET", "url": "{{baseUrl}}/supplierB/hotels?city=delhi" } },
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+      "event": [{ "listen": "test", "script": { "exec": [
+        "pm.test('Health status is returned', () => pm.response.to.have.status.oneOf(200, 503));",
+        "const body = pm.response.json();",
+        "pm.test('Both suppliers are reported', () => { pm.expect(body).to.have.property('supplierA'); pm.expect(body).to.have.property('supplierB'); });"
+      ] } }]
+    }
+  ]
+}

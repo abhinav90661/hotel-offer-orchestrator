@@ -1,0 +1,12 @@
+{
+  "info": { "name": "Hotel Offer Orchestrator", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "item": [
+    { "name": "Hotels in Delhi", "request": { "method": "GET", "url": "http://localhost:3000/api/hotels?city=delhi" } },
+    { "name": "Hotels by Price Range", "request": { "method": "GET", "url": "http://localhost:3000/api/hotels?city=delhi&minPrice=5000&maxPrice=6000" } },
+    { "name": "City with No Results", "request": { "method": "GET", "url": "http://localhost:3000/api/hotels?city=chennai" } },
+    { "name": "Supplier A Mock", "request": { "method": "GET", "url": "http://localhost:3000/supplierA/hotels?city=delhi" } },
+    { "name": "Supplier B Mock", "request": { "method": "GET", "url": "http://localhost:3000/supplierB/hotels?city=delhi" } },
+    { "name": "Simulate Supplier A Down", "request": { "method": "GET", "url": "http://localhost:3000/supplierA/hotels?down=true" } },
+    { "name": "Health", "request": { "method": "GET", "url": "http://localhost:3000/health" } }
+  ]
+}
