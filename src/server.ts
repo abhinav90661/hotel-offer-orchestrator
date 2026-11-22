@@ -26,7 +26,7 @@ app.get('/supplierB/hotels', (req: Request, res: Response) => {
 });
 
 app.post('/api/test/supplier/:supplier/down', (req: Request, res: Response) => {
-  const supplier = req.params.supplier.toLowerCase();
+  const supplier = String(req.params.supplier).toLowerCase();
   if (supplier !== 'a' && supplier !== 'b') {
     res.status(400).json({ error: 'supplier must be a or b' });
     return;
