@@ -45,7 +45,6 @@ docker compose up --build
 - API: http://localhost:3000
 - Temporal UI: http://localhost:8080
 - Temporal gRPC: localhost:7233
-- Redis: localhost:6379
 
 Stop the stack with `docker compose down`. Add `-v` to remove PostgreSQL and Redis volumes.
 
